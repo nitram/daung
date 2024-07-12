@@ -1,0 +1,10 @@
+<div class="menu">
+    <a href="{% url 'inventory:index' %}"></a>
+    <a href="{% url 'inventory:items' %}"></a>
+    
+    <select id="bin" name="bin">
+        {% for bin in bins %}
+            <option value="{{ bin.id }}">{{ bin.name }}</option>
+        {% endfor %}
+    </select>
+</div>

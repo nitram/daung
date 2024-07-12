@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block title %} 
+        {% endblock %}
+         | Daung Inventory
+    </title>
+</head>
+<body>
+    <div class="nav">
+        <h2>{% block header %}{% endblock %}</h2>
+        <div class="user">
+            {{request.user.username}}
+        </div>
+    </div>
+    {% block body %}
+    {% endblock %}
+    <div class="logout">
+        <a href="{% url 'users:logout' %}">Log out</a>
+    </div>
+</body>
+</html>

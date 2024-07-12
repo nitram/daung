@@ -1,0 +1,7 @@
+.DS_Store
+.env
+.vscode
+__pycache__
+daung/settings/local.py
+daungdb
+collectstatic

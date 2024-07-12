@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Items
+{% endblock %}
+
+{% block header %}
+    Items
+{% endblock %}
+
+{% block body %}
+    {% if bins %}
+
+        <ul class="bins">
+
+        {% for bin in bins %}
+            <div id="{{ bin.id }}" class="bin">
+                {{ bin.name }}
+            </div>
+        {% endfor %}
+
+        </ul>
+
+        <div class="button-container">
+            <a href="add_bin">Add bin</a>
+        </div>
+
+        {% else %}
+
+        <div class="button-container large">
+            <a href="add_bin">Add bin</a>
+        </div>
+
+    {% endif %}
+{% endblock %}

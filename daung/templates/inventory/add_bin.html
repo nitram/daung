@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Add new bin
+{% endblock %}
+
+{% block header %}
+    Add new bin
+{% endblock %}
+
+{% block body %}
+<form action="{% url 'inventory:index' %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="name" placeholder="Name" required>
+    <input type="submit" value="Add Bin">
+</form>
+{% endblock %}

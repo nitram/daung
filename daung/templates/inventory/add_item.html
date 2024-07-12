@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Add new item
+{% endblock %}
+
+{% block header %}
+    Add new item
+{% endblock %}
+
+{% block body %}
+    <form action="{% url 'inventory:items' %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="name" placeholder="Name" required>
+        <input type="number" name="quantity" placeholder="Quantity" min="1" required>
+        <input type="file" name="image" accept="image/*" placeholder="Image">
+        <select id="bin" name="bin" {% if not bins %} disabled {% endif %}>
+            {% if bins %}
+                <option value="" selected disabled>Select a bin</option>
+                {% for bin in bins %}
+                    <option value="{{ bin.id }}">{{ bin.name }}</option>
+                {% endfor %}
+            {% else %}
+                <option value="" selected disabled>No bins available</option>
+            {% endif %}
+        </select>
+        <input type="text" name="description" rows="2" placeholder="Description">
+        <input type="number" name="price" placeholder="Price" min="0" step="0.01">
+        <input type="submit" value="Add Item">
+    </form>
+{% endblock %}
