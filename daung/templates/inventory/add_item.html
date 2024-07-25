@@ -9,23 +9,21 @@
 {% endblock %}
 
 {% block body %}
-    <form action="{% url 'inventory:items' %}" method="post">
+    <form action="{% url 'inventory:add_item' %}" method="post">
         {% csrf_token %}
         <input type="text" name="name" placeholder="Name" required>
         <input type="number" name="quantity" placeholder="Quantity" min="1" required>
         <input type="file" name="image" accept="image/*" placeholder="Image">
         <select id="bin" name="bin" {% if not bins %} disabled {% endif %}>
             {% if bins %}
-                <option value="" selected disabled>Select a bin</option>
+                <option value="" {% if not selected_bin %} selected {% endif %} disabled>Select a bin</option>
                 {% for bin in bins %}
-                    <option value="{{ bin.id }}">{{ bin.name }}</option>
+                    <option value="{{ bin.id }}" {% if selected_bin.id == bin.id %} selected {% endif %}>{{ bin.name }}</option>
                 {% endfor %}
             {% else %}
                 <option value="" selected disabled>No bins available</option>
             {% endif %}
         </select>
-        <input type="text" name="description" rows="2" placeholder="Description">
-        <input type="number" name="price" placeholder="Price" min="0" step="0.01">
         <input type="submit" value="Add Item">
     </form>
 {% endblock %}

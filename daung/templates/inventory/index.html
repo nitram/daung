@@ -1,31 +1,48 @@
 {% extends "base.html" %}
+{% load custom_tags static %}
 
 {% block title %}
     Bins
 {% endblock %}
 
 {% block body %}
+
+    {% get_nav "Bins" %}
+
+    <div class="menu">
+        <a href="{% url 'inventory:index' %}">bins</a>
+        <a href="{% url 'inventory:items' %}">items</a>
+    
+        <input type="text" id="search-bar" class="form-control" placeholder="Search">
+    </div>
+
     {% if bins %}
 
         <ul class="bins">
 
         {% for bin in bins %}
-            <div id="{{ bin.id }}" class="bin">
-                {{ bin.name }}
-            </div>
+            <li id="{{ bin.id }}" class="bin qdata">
+                <a href="{% url 'inventory:bin_items' bin.id %}">
+                    <span class="qtext">{{ bin.name }}</span>
+                </a>
+            </li>
         {% endfor %}
 
         </ul>
 
         <div class="button-container">
-            <a href="add_bin">Add bin</a>
+            <a href="{% url 'inventory:edit_bin' %}">Edit bins</a>
         </div>
 
     {% else %}
 
-        <div class="button-container large">
-            <a href="add_bin">Add bin</a>
+        <div class="button-container">
+            <a href="{% url 'inventory:add_bin' %}">Add bin</a>
         </div>
         
     {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="{% static 'js/loadquery.js' %}"></script>
 {% endblock %}

@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block body %}
-<form action="{% url 'inventory:index' %}" method="post">
+<form action="{% url 'inventory:add_bin' %}" method="post">
     {% csrf_token %}
     <input type="text" name="name" placeholder="Name" required>
     <input type="submit" value="Add Bin">

@@ -1,7 +1,12 @@
 {% extends "base.html" %}
+{% load custom_tags static %}
 
 {% block title %}
-    Items
+    {% if not selected_bin %}
+        Items
+    {% else %}
+        Items - {{ bin.name }}
+    {% endif %}
 {% endblock %}
 
 {% block header %}
@@ -9,27 +14,68 @@
 {% endblock %}
 
 {% block body %}
-    {% if bins %}
 
-        <ul class="bins">
+    {% get_nav "Items" %}
 
-        {% for bin in bins %}
-            <div id="{{ bin.id }}" class="bin">
-                {{ bin.name }}
-            </div>
+    <div class="menu">
+        <a href="{% url 'inventory:index' %}">bins</a>
+        <a href="{% url 'inventory:items' %}">items</a>
+    
+        <select id="bin" name="bin" onchange="redirectToBin()">
+            <option value="-1" {% if not selected_bin %} selected {% endif %}>All items</option>
+            {% for bin in bins %}
+                <option value="{{ bin.id }}" {% if selected_bin.id == bin.id %} selected {% endif %}>{{ bin.name }}</option>
+            {% endfor %}
+        </select>
+    
+        <input type="text" id="search-bar" class="form-control" placeholder="Search">
+    </div>
+
+    {% if items %}
+
+        <ul class="items">
+
+        {% for item in items %}
+            <li id="{{ selected_bin.id }}" class="item qdata">
+                <div>
+                    <span class="qtext">{{ item.name }}</span> x {{ item.quantity }}
+                </div>
+            </li>
         {% endfor %}
 
         </ul>
 
         <div class="button-container">
-            <a href="add_bin">Add bin</a>
+            {% if selected_bin %}
+                <a href="{% url 'inventory:add_bin_item' selected_bin.id %}">Add item</a>
+            {% else %}
+                <a href="{% url 'inventory:add_item' %}">Add item</a>
+            {% endif %}
         </div>
 
-        {% else %}
-
-        <div class="button-container large">
-            <a href="add_bin">Add bin</a>
-        </div>
+    {% else %}
+    <!-- NO ITEMS -->
 
     {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        function redirectToBin() {
+            const binId = document.getElementById('bin').value;
+            let url = '';
+
+            if (binId === '-1') {
+                url = "{% url 'inventory:items' %}";
+            } else {
+                
+                url = `/items/b/${binId}`
+            }
+
+            window.location.href = url;
+        }
+    </script>
+
+    <script type="text/javascript" src="{% static 'js/loadquery.js' %}"></script>
 {% endblock %}

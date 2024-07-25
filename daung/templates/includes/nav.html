@@ -1,0 +1,14 @@
+{% load static %}
+
+<div class="nav">
+    <h1>{{ header }}</h1>
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+          {{ request.user.username }}
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="#">Account Settings</a>
+          <a class="dropdown-item" href="{% url 'users:logout' %}">Log Out</a>
+        </div>
+    </div>
+</div>

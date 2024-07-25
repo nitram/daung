@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 
 
@@ -14,17 +14,20 @@ def index(request):
 
 def create_page(request):
     if request.method == "POST":
-        first_name = request.POST["firstname"]
-        last_name = request.POST["lastname"]
-        email = request.POST["email"]
-        username = request.POST["username"]
-        password = request.POST["password"]
+        first_name = request.POST.get("firstname")
+        last_name = request.POST.get("lastname")
+        email = request.POST.get("email")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
-        user = User.objects.create_user(username=username, 
-                                        first_name=first_name, 
-                                        last_name=last_name, 
-                                        email=email, 
-                                        password=password)
+        if username and password:
+            user = User.objects.create_user(username=username, 
+                                            first_name=first_name, 
+                                            last_name=last_name, 
+                                            email=email, 
+                                            password=password)
+        else:
+            return redirect("users:create")
         
         if user is not None:
             login(request, user)
@@ -46,12 +49,15 @@ def create_page(request):
 # Create your views here.
 def login_page(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
-        user = authenticate(request,
-                            username=username,
-                            password=password)
+        if username and password:
+            user = authenticate(request,
+                                username=username,
+                                password=password)
+        else:
+            return redirect("users:login")
             
         if user is not None:
             login(request, user)

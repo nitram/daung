@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load custom_tags static %}
+
+{% block title %}
+    Bins
+{% endblock %}
+
+{% block body %}
+
+    {% get_nav "Bins" %}
+
+    <div class="menu">
+        <a href="{% url 'inventory:index' %}">bins</a>
+        <a href="{% url 'inventory:items' %}">items</a>
+    
+        <input type="text" id="search-bar" class="form-control" placeholder="Search">
+    </div>
+
+    {% if bins %}
+
+    <form action="{% url 'inventory:edit_bin' %}" method="post">
+        {% csrf_token %}
+        <ul class="bins" id="bins-list">
+            
+        {% for bin in bins %}
+            <li id="{{ bin.id }}" class="bin qdata">
+                <input type="hidden" name="bin_ids" value="{{ bin.id }}">
+                <input type="hidden" name="original_bin_names" value="{{ bin.name }}">
+                <input type="hidden" name="removed_bins" value="" class="removed-bins">
+
+                <input type="text" name="bin_names" placeholder="Name" value="{{ bin.name }}" required>
+                <span class="qtext d-none">{{ bin.name }}</span>
+
+                <button type="button" onclick="removeBin('{{ bin.id }}')" class="remove-button">Remove bin</button>
+                <button type="button" onclick="cancelRemoveBin('{{ bin.id }}')" class="cancel-button d-none">Cancel</button>
+            </li>
+        {% endfor %}
+            
+        </ul>
+
+        <div class="button-container">
+            <a href="{% url 'inventory:add_bin' %}">Add bin</a>
+        </div>
+
+        <div class="button-container">
+            <a href="{% url 'inventory:index' %}">Cancel</a>
+                <input type="submit" value="Submit changes">
+        </div>
+    </form>
+
+    {% else %}
+
+        <div>No Bins. Go back.</div>
+        <div class="button-container">
+            <a href="{% url 'inventory:index' %}">Go back</a>
+        </div>
+        
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="{% static 'js/loadquery.js' %}"></script>
+    <script>
+        function removeBin(binId) {
+            const binElement = document.getElementById(binId);
+            const removedBinsInput = binElement.querySelector('.removed-bins');
+            removedBinsInput.value = '1';
+            binElement.classList.add('removed');
+            binElement.querySelector('.remove-button').classList.add('d-none');
+            binElement.querySelector('.cancel-button').classList.remove('d-none');
+        }
+
+        function cancelRemoveBin(binId) {
+            const binElement = document.getElementById(binId);
+            const removedBinsInput = binElement.querySelector('.removed-bins');
+            removedBinsInput.value = '';
+            binElement.classList.remove('removed');
+            binElement.querySelector('.remove-button').classList.remove('d-none');
+            binElement.querySelector('.cancel-button').classList.add('d-none');
+        }
+    </script>
+{% endblock %}
