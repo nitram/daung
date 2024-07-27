@@ -10,9 +10,10 @@
     {% get_nav "Bins" %}
 
     <div class="menu">
-        <a href="{% url 'inventory:index' %}">bins</a>
-        <a href="{% url 'inventory:items' %}">items</a>
-    
+        <a href="{% url 'inventory:index' %}">Bins</a>
+        <a href="{% url 'inventory:items' %}">Items</a>
+        <a href="{% url 'inventory:item_logs' 0 %}">Changes History</a>
+
         <input type="text" id="search-bar" class="form-control" placeholder="Search">
     </div>
 

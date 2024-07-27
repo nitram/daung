@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load custom_tags static %}
+
+{% block title %}
+    Edit Items
+{% endblock %}
+
+{% block body %}
+
+    {% get_nav "Edit Items" %}
+
+    <div class="menu">
+        <a href="{% url 'inventory:index' %}">Bins</a>
+        <a href="{% url 'inventory:items' %}">Items</a>
+    
+        <input type="text" id="search-bar" class="form-control" placeholder="Search">
+    </div>
+
+    {% if items %}
+
+    <form action="{% url 'inventory:edit_item' %}" method="post">
+        {% csrf_token %}
+        <ul class="items">
+
+        {% for item in items %}
+            <li id="{{ item.id }}" class="item qdata">
+                <!-- Item ID -->
+                <input type="hidden" name="item_ids" value="{{ item.id }}">
+
+                <!-- Item image -->
+                <input type="file" name="item_imgs" accept="image/*" placeholder="Image">
+
+                <!-- Item name -->
+                <input type="hidden" name="original_item_names" value="{{ item.name }}">
+                <input type="text" name="item_names" placeholder="Name" value="{{ item.name }}" required>
+                <span class="qtext d-none">{{ item.name }}</span>
+
+                <!-- Item quantity -->
+                <input type="hidden" name="original_item_qtys" value="{{ item.quantity }}">
+                <input type="number" name="item_qtys" placeholder="Quantity" min="0" value="{{ item.quantity }}" required>
+
+                <!-- Remove item -->
+                <button type="button" onclick="removeItem('{{ item.id }}')" class="remove-button">Remove item</button>
+                <button type="button" onclick="cancelRemoveItem('{{ item.id }}')" class="cancel-button d-none">Cancel</button>
+                <input type="hidden" name="removed_items" value="" class="removed-items">
+            </li>
+        {% endfor %}
+
+        </ul>
+
+        <div class="button-container">
+            <a href="{% url 'inventory:add_item' %}">Add item</a>
+        </div>
+
+        <div class="button-container">
+            <a href="{% url 'inventory:items' %}">Cancel</a>
+            <input type="submit" value="Submit changes">
+        </div>
+
+
+    {% else %}
+
+        <div class="button-container">
+            {% if selected_item %}
+                <a href="{% url 'inventory:add_item_item' selected_item.id %}">Edit items</a>
+            {% else %}
+                <a href="{% url 'inventory:add_item' %}">Edit items</a>
+            {% endif %}
+        </div>
+
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="{% static 'js/loadquery.js' %}"></script>
+    <script>
+        function removeItem(itemId) {
+            const itemElement = document.getElementById(itemId);
+            const removedItemsInput = itemElement.querySelector('.removed-items');
+            removedItemsInput.value = '1';
+            itemElement.classList.add('removed');
+            itemElement.querySelector('.remove-button').classList.add('d-none');
+            itemElement.querySelector('.cancel-button').classList.remove('d-none');
+        }
+
+        function cancelRemoveItem(itemId) {
+            const itemElement = document.getElementById(itemId);
+            const removedItemsInput = itemElement.querySelector('.removed-items');
+            removedItemsInput.value = '';
+            itemElement.classList.remove('removed');
+            itemElement.querySelector('.remove-button').classList.remove('d-none');
+            itemElement.querySelector('.cancel-button').classList.add('d-none');
+        }
+    </script>
+{% endblock %}

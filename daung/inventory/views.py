@@ -3,19 +3,16 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.urls import reverse
 
-from .models import Bin, Item
+from itertools import zip_longest
+
+from .models import Bin, Item, Log
 
 # Create your views here.
 def index(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("users:login"))
     
-    query = request.GET.get('q')
-    if query:
-        bins = Bin.objects.filter(name__icontains=query)
-    else:
-        bins = Bin.objects.all()
-
+    bins = Bin.objects.all()
     return render(request, "inventory/index.html", {'bins': bins})
 
 
@@ -110,17 +107,15 @@ def edit_bin(request):
         errors = []
         
         # Iterate through each bin and update it
-        for bin_id, bin_name, original_bin_name, removed_bin in zip(bin_ids, bin_names, original_bin_names, removed_bins):
+        for bin_id, bin_name, original_bin_name, removed_bin in zip_longest(
+            bin_ids, bin_names, original_bin_names, removed_bins, fillvalue=None):
             try: 
                 bin = Bin.objects.get(id=bin_id)
-                print(removed_bin)
                 if removed_bin == '1':
-                    print("bin should be deleted")
                     bin.delete()
                 else:
                     bin.name = bin_name
                     bin.save()
-                # TODO: UPDATE CHANGES HISTORY WHEN THE MODEL IS READY
             except Bin.DoesNotExist:
                 # Handle the case where the bin has been deleted
                 errors.append(f"You cannot change {original_bin_name} because it has been deleted by another user.")
@@ -133,10 +128,101 @@ def edit_bin(request):
         # Redirect back to the index page
         return redirect('inventory:index')
     
-    query = request.GET.get('q')
-    if query:
-        bins = Bin.objects.filter(name__icontains=query)
+    bins = Bin.objects.all()
+    return render(request, "inventory/edit_bin.html", {'bins': bins})
+
+
+def edit_item(request, bin_id=None):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("users:login"))
+    
+    if request.method == "POST":
+        item_ids = request.POST.getlist('item_ids')
+        item_names = request.POST.getlist('item_names')
+        original_item_names = request.POST.getlist('original_item_names')
+        item_qtys = request.POST.getlist('item_qtys')
+        original_item_qtys = request.POST.getlist('original_item_qtys')
+        item_imgs = request.FILES.getlist('item_imgs')
+        removed_items = request.POST.getlist('removed_items')
+
+        errors = []
+        
+        # Iterate through each item and update it
+        for item_id, item_name, original_item_name, item_qty, original_item_qty, item_img, removed_item in zip_longest(
+            item_ids, item_names, original_item_names, item_qtys, original_item_qtys, item_imgs, removed_items, fillvalue=None):
+            try: 
+                item = Item.objects.get(id=item_id)
+
+                if removed_item == '1':
+                    item.delete()
+                else:
+                    if item.bin:
+                        bin = item.bin 
+                        bin_name = item.bin.name
+                    else:
+                        bin = None
+                        bin_name = None
+
+                    if item_qty != original_item_qty:
+                        Log.objects.create(
+                            username=request.user,
+                            item=item,
+                            ondelete_last_item = item.name,
+                            bin = bin,
+                            ondelete_last_bin = bin_name,
+                            quantity = item_qty,
+                            previous_quantity = original_item_qty
+                        )
+
+                    item.image = item_img
+                    item.name = item_name
+                    item.quantity = item_qty
+                    item.save()
+            except Item.DoesNotExist:
+                # Handle the case where the item has been deleted
+                errors.append(f"You cannot change {original_item_name} because it has been deleted by another user.")
+
+        # Notify the user of the errors if there are any
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+
+        # Redirect back to the index page
+        return redirect('inventory:items')
+    
+    if bin_id:
+        bin_instance = get_object_or_404(Bin, id=bin_id)
+        bins = Bin.objects.all()
+        items = Item.objects.filter(bin=bin_instance)
+        
+        context = {
+            'items': items,
+            'selected_bin': bin_instance,
+            'bins': bins,
+        }
     else:
         bins = Bin.objects.all()
+        items = Item.objects.all()
+        
+        context = {
+            'items': items,
+            'bins': bins,
+        }
+    
+    return render(request, "inventory/edit_item.html", context)
 
-    return render(request, "inventory/edit_bin.html", {'bins': bins})
+
+def item_logs(request, page=0):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("users:login"))
+    
+    logs = Log.objects.order_by('-id')[20*page:20*(page+1)]
+    bins = Bin.objects.all()
+
+    context = {
+        'logs': logs,
+        'bins': bins,
+        'next_page': page+1,
+    }
+    
+    return render(request, "inventory/item_log.html", context)

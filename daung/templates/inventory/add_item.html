@@ -11,9 +11,9 @@
 {% block body %}
     <form action="{% url 'inventory:add_item' %}" method="post">
         {% csrf_token %}
+        <input type="file" name="image" accept="image/*" placeholder="Image">
         <input type="text" name="name" placeholder="Name" required>
         <input type="number" name="quantity" placeholder="Quantity" min="1" required>
-        <input type="file" name="image" accept="image/*" placeholder="Image">
         <select id="bin" name="bin" {% if not bins %} disabled {% endif %}>
             {% if bins %}
                 <option value="" {% if not selected_bin %} selected {% endif %} disabled>Select a bin</option>

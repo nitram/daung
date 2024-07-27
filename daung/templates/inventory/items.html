@@ -18,8 +18,9 @@
     {% get_nav "Items" %}
 
     <div class="menu">
-        <a href="{% url 'inventory:index' %}">bins</a>
-        <a href="{% url 'inventory:items' %}">items</a>
+        <a href="{% url 'inventory:index' %}">Bins</a>
+        <a href="{% url 'inventory:items' %}">Items</a>
+        <a href="{% url 'inventory:item_logs' 0 %}">Changes History</a>
     
         <select id="bin" name="bin" onchange="redirectToBin()">
             <option value="-1" {% if not selected_bin %} selected {% endif %}>All items</option>
@@ -36,7 +37,7 @@
         <ul class="items">
 
         {% for item in items %}
-            <li id="{{ selected_bin.id }}" class="item qdata">
+            <li class="item qdata">
                 <div>
                     <span class="qtext">{{ item.name }}</span> x {{ item.quantity }}
                 </div>
@@ -47,14 +48,21 @@
 
         <div class="button-container">
             {% if selected_bin %}
-                <a href="{% url 'inventory:add_bin_item' selected_bin.id %}">Add item</a>
+                <a href="{% url 'inventory:edit_bin_item' selected_bin.id %}">Edit items</a>
             {% else %}
-                <a href="{% url 'inventory:add_item' %}">Add item</a>
+                <a href="{% url 'inventory:edit_item' %}">Edit items</a>
             {% endif %}
         </div>
 
     {% else %}
-    <!-- NO ITEMS -->
+
+        <div class="button-container">
+            {% if selected_bin %}
+                <a href="{% url 'inventory:add_bin_item' selected_bin.id %}">Add items</a>
+            {% else %}
+                <a href="{% url 'inventory:add_item' %}">Add items</a>
+            {% endif %}
+        </div>
 
     {% endif %}
 
@@ -69,7 +77,6 @@
             if (binId === '-1') {
                 url = "{% url 'inventory:items' %}";
             } else {
-                
                 url = `/items/b/${binId}`
             }
 

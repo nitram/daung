@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load custom_tags static %}
+
+{% block title %}
+    Change History
+{% endblock %}
+
+{% block body %}
+
+    {% get_nav "Bins" %}
+
+    <div class="menu">
+        <a href="{% url 'inventory:index' %}">Home</a>
+    
+        <input type="text" id="search-bar" class="form-control" placeholder="Search">
+    </div>
+
+    {% if logs %}
+
+        <ul class="logs">
+
+        {% for log in logs %}
+            <li id="{{ log.id }}" class="log qdata">
+                <div>
+                    <span class="qtext">{{ log.timestamp }}</span>
+                    <span class="qtext">{{ log.username }}</span>
+                    <span class="qtext">
+                        {% if log.item %} 
+                            {{ log.item.name }}
+                        {% else %}
+                            {{ log.ondelete_last_item }}
+                        {% endif %}
+                    </span>
+                    <span class="qtext">
+                        {% if log.bin %}
+                            {{ log.bin }}
+                        {% else %}
+                            {% if log.ondelete_last_bin %}
+                                {{ log.ondelete_last_bin }}
+                            {% else %}
+                                None
+                            {% endif %}
+                        {% endif %}
+                    </span>
+                    <span class="">{{ log.quantity }}</span>
+                    <span class="">{{ log.previous_quantity }}</span>
+                </div>
+            </li>
+        {% endfor %}
+
+        </ul>
+
+        <div class="button-container">
+            <a href="{% url 'inventory:item_logs' next_page %}">Edit bins</a>
+        </div>
+
+    {% else %}
+
+        <span>No changes made yet</span>
+        
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="{% static 'js/loadquery.js' %}"></script>
+{% endblock %}
